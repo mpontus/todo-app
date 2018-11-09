@@ -1,0 +1,18 @@
+{
+  "name": "auth-boilerplate",
+  "version": "1.0.0",
+  "description": "Authentication boilerplate using React and NestJS",
+  "repository": "https://github.com/mpontus/auth-boilerplate",
+  "author": "Michael Pontus",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "start": "lerna run start --parallel",
+    "build": "lerna run build",
+    "lint": "lerna run lint",
+    "heroku-postbuild": "npm run build --scope server"
+  },
+  "devDependencies": {
+    "lerna": "^2.11.0"
+  }
+}

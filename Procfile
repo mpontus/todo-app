@@ -1,0 +1,1 @@
+web: NODE_PATH=server/dist node server/dist/main.js
