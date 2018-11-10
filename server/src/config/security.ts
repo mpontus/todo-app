@@ -8,6 +8,11 @@ export default {
   jwt_secret: process.env.JWT_SECRET,
 
   /**
+   * Salt rounds for password hashing
+   */
+  salt_rounds: 7,
+
+  /**
    * How long until email activation code expires
    */
   email_activation_expiry: 365 * 24 * 3600,

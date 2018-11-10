@@ -12,6 +12,18 @@ Having Docker and docker-compose installed run `docker-compose up`. This will ex
 - API server in development mode on port `localhost:8080`
 - [MailHog](https://github.com/mailhog/MailHog) front-end on port `localhost:8025`
 
+Make sure to run the migration after all of the services have started:
+
+```
+docker-compose run server yarn migration:run
+```
+
+Use the following commands to generate new migration after making changes to TypeORM entities:
+
+```
+docker-compose run --user `id -u` server yarn migration:generate
+```
+
 ## Deployment
 
 This repo contains CircleCI configuration to automatically deploy API server to Heroku and upload static files to the S3 bucket.
