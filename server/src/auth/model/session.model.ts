@@ -1,4 +1,5 @@
-import { User } from 'common/model/user.model';
+import { User } from 'user/model/user.model';
+import { ApiModelProperty } from '@nestjs/swagger';
 
 /**
  * Session Model
@@ -9,6 +10,7 @@ export class Session {
   /**
    * Access token used to associate client with user record
    */
+  @ApiModelProperty()
   public token: string;
 
   /**
@@ -16,12 +18,14 @@ export class Session {
    *
    * Will be undefined when the user is authenticated anonymously.
    */
-  public user: User | undefined;
+  @ApiModelProperty({ type: User })
+  public user: User;
 
   /**
-   * Constructor shorthand
+   * Create new session
    */
-  constructor(values?: Partial<Session>) {
-    Object.assign(this, values);
+  constructor(token: string, user: User) {
+    this.token = token;
+    this.user = user;
   }
 }

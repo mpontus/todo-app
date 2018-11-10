@@ -4,16 +4,17 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Principal } from 'common/model/principal.model';
-import { User } from 'common/model/user.model';
 import { PasswordService } from 'common/password.service';
 import { validateSchema } from 'common/utils/validateSchema';
 import * as t from 'io-ts';
-import { IProfileUpdate } from 'user/interface/IProfile';
+import { CreateProfileDto } from 'user/model/create-profile-dto.model';
+import { User } from 'user/model/user.model';
 import { UserService } from 'user/user.service';
 import { InvalidPayloadError } from './exceptions/InvalidPayloadError';
-import { ICredentials } from './interfaces/credentials.interface';
 import { JwtService } from './jwt.service';
 import { Session } from './model/session.model';
+import { LoginDto } from './model/login-dto.model';
+import { AnonymousSession } from './model/anonymous-session';
 
 /**
  * Validation schema for the payload stored in JWT token
@@ -36,7 +37,7 @@ export class SessionService {
     private readonly jwtService: JwtService,
   ) {}
 
-  public async login(credentials: ICredentials): Promise<Session> {
+  public async login(credentials: LoginDto): Promise<Session> {
     const user = await this.userService.findByUsername(credentials.username);
 
     if (
@@ -50,7 +51,9 @@ export class SessionService {
       throw new BadRequestException();
     }
 
-    return this.createSession(user);
+    const token = await this.createToken(user);
+
+    return new Session(token, user);
   }
 
   /**
@@ -58,35 +61,22 @@ export class SessionService {
    */
   public async signup(
     actor: Principal,
-    profile: IProfileUpdate,
+    profile: CreateProfileDto,
   ): Promise<Session> {
     const user = await this.userService.createUserProfile(actor, profile);
+    const token = await this.createToken(user);
 
-    return this.createSession(user);
+    return new Session(token, user);
   }
 
   /**
    * Authenticate with temporary user account
    */
-  public async loginAnonymously(): Promise<Session> {
+  public async loginAnonymously(): Promise<AnonymousSession> {
     const user = await this.userService.createAnonymousUser();
+    const token = await this.createToken(user);
 
-    return this.createSession(user);
-  }
-
-  /**
-   * Create new session for the given user
-   */
-  public async createSession(user: User): Promise<Session> {
-    const token = await this.jwtService.encode({
-      sub: user.id,
-      isAnonymous: true,
-    });
-
-    return new Session({
-      token,
-      user: user.isAnonymous ? undefined : user,
-    });
+    return new AnonymousSession(token);
   }
 
   /**
@@ -110,5 +100,15 @@ export class SessionService {
 
       throw error;
     }
+  }
+
+  /**
+   * Create new session for the given user
+   */
+  private async createToken(user: User): Promise<string> {
+    return await this.jwtService.encode({
+      sub: user.id,
+      isAnonymous: user.isAnonymous,
+    });
   }
 }

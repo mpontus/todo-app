@@ -43,7 +43,7 @@ Object {
 exports[`signup when the user does not exist should be successful 1`] = `
 Object {
   "token": Any<String>,
-  "user": ObjectContaining {
+  "user": Object {
     "id": "9dc8c9df-74be-5ca0-93d6-b049e820f13f",
     "username": "Hailee58",
   },

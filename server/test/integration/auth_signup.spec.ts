@@ -31,10 +31,6 @@ describe('signup', () => {
 
       expect(response.body).toMatchSnapshot({
         token: expect.any(String),
-        user: expect.objectContaining({
-          id: authSeed.id,
-          username: 'Hailee58',
-        }),
       });
     });
   });

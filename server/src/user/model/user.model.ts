@@ -1,3 +1,6 @@
+import { Exclude } from 'class-transformer';
+import { ApiModelProperty } from '@nestjs/swagger';
+
 /**
  * User model
  *
@@ -7,22 +10,26 @@ export class User {
   /**
    * User id
    */
+  @ApiModelProperty()
   public id: string;
-
-  /**
-   * Describes whether the user is anonymous
-   */
-  public isAnonymous: boolean;
 
   /**
    * Unique user name
    */
+  @ApiModelProperty({ type: 'string' })
   public username: string | undefined;
 
   /**
    * Hashed user password
    */
+  @Exclude()
   public passwordHash: string | undefined;
+
+  /**
+   * Describes whether the user is anonymous
+   */
+  @Exclude()
+  public isAnonymous: boolean;
 
   /**
    * Constructor shorthand

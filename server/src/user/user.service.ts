@@ -1,11 +1,12 @@
-import { UnauthorizedException, Injectable, Inject } from '@nestjs/common';
-import { Principal } from 'common/model/principal.model';
-import { User } from 'common/model/user.model';
-import { PasswordService } from 'common/password.service';
-import { Repository } from 'typeorm';
-import { UserEntity } from './entity/user.entity';
-import { IProfileUpdate } from './interface/IProfile';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Principal } from 'common/model/principal.model';
+import { PasswordService } from 'common/password.service';
+import { Profiler } from 'inspector';
+import { Repository } from 'typeorm';
+import { User } from 'user/model/user.model';
+import { UserEntity } from './entity/user.entity';
+import { CreateProfileDto } from './model/create-profile-dto.model';
 
 /**
  * User service
@@ -43,7 +44,7 @@ export class UserService {
    */
   public async createUserProfile(
     actor: Principal,
-    data: IProfileUpdate,
+    data: CreateProfileDto,
   ): Promise<User> {
     const userEntity = await this.userRepository.findOne(actor.id);
 

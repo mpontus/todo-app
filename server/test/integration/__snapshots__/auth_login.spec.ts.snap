@@ -3,8 +3,9 @@
 exports[`login when credentials are correct should be successful 1`] = `
 Object {
   "token": Any<String>,
-  "user": ObjectContaining {
+  "user": Object {
     "id": "90aaf329-bad5-59e3-881d-5b9c0a6832c8",
+    "username": "dodgip",
   },
 }
 `;
