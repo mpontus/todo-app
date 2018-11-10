@@ -14,28 +14,16 @@ afterAll(() => nestApp.close());
 beforeEach(resetDb);
 
 describe('login', () => {
-  describe('anonymous authentication', () => {
-    it('should be successful', async () => {
-      const response = await supertest(expressApp)
-        .post('/auth/login/anonymous')
-        .expect(201);
+  const seed = require('../seeds/registered_user');
 
-      expect(response.body).toMatchSnapshot({
-        token: expect.any(String),
-      });
-    });
-  });
+  beforeEach(() => seed.run());
 
   describe('when credentials are correct', () => {
-    const seed = require('../seeds/registered_user');
-
-    beforeEach(() => seed.run());
-
     it('should be successful', async () => {
       const response = await supertest(expressApp)
         .post('/auth/login')
         .send({
-          email: seed.email,
+          username: seed.username,
           password: seed.password,
         })
         .expect(201);
@@ -54,8 +42,22 @@ describe('login', () => {
       const response = await supertest(expressApp)
         .post('/auth/login')
         .send({
-          email: 'nfisher@yahoo.com',
-          password: '9O_8ywUKpHuHjnZ',
+          username: 'nfisher@yahoo.com',
+          password: seed.password,
+        })
+        .expect(400);
+
+      expect(response.body).toMatchSnapshot();
+    });
+  });
+
+  describe('when password is invalid', () => {
+    it('should be an error', async () => {
+      const response = await supertest(expressApp)
+        .post('/auth/login')
+        .send({
+          username: seed.username,
+          password: '^u&Mt3&I52',
         })
         .expect(400);
 

@@ -5,9 +5,9 @@
  */
 export interface ICredentials {
   /**
-   * Username or email
+   * Username
    */
-  identifier: string;
+  username: string;
 
   /**
    * Password

@@ -1,24 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`login anonymous authentication should be successful 1`] = `
-Object {
-  "token": Any<String>,
-}
-`;
-
 exports[`login when credentials are correct should be successful 1`] = `
 Object {
   "token": Any<String>,
   "user": ObjectContaining {
-    "id": "4398753495687346",
+    "id": "90aaf329-bad5-59e3-881d-5b9c0a6832c8",
   },
+}
+`;
+
+exports[`login when password is invalid should be an error 1`] = `
+Object {
+  "error": "Bad Request",
+  "statusCode": 400,
 }
 `;
 
 exports[`login when the user does not exist should be an error 1`] = `
 Object {
   "error": "Bad Request",
-  "message": "Bad credentials",
   "statusCode": 400,
 }
 `;

@@ -37,14 +37,15 @@ export class SessionService {
   ) {}
 
   public async login(credentials: ICredentials): Promise<Session> {
-    const user = await this.userService.findByIdentifier(
-      credentials.identifier,
-    );
+    const user = await this.userService.findByUsername(credentials.username);
 
     if (
       user === undefined ||
       user.passwordHash === undefined ||
-      !this.passwordService.verify(user.passwordHash, credentials.password)
+      !(await this.passwordService.verify(
+        user.passwordHash,
+        credentials.password,
+      ))
     ) {
       throw new BadRequestException();
     }
@@ -84,7 +85,7 @@ export class SessionService {
 
     return new Session({
       token,
-      user,
+      user: user.isAnonymous ? undefined : user,
     });
   }
 

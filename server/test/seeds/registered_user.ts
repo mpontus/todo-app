@@ -1,20 +1,19 @@
 import * as bcrypt from 'bcrypt';
 import { getConnection } from 'typeorm';
-import { User } from '../../src/user/data/entity/user.entity';
+import { UserEntity } from '../../src/user/entity/user.entity';
 
-export const id = '4398753495687346';
-export const name = 'Chris Curtis';
-export const email = 'Toby38@gmail.com';
+export const id = '90aaf329-bad5-59e3-881d-5b9c0a6832c8';
+export const username = 'dodgip';
 export const password = 'H$4Dxli4R8';
 export const passwordHash = bcrypt.hashSync(password, 6);
 
 export const run = () =>
   getConnection().manager.save(
-    User,
-    getConnection().manager.create(User, {
+    UserEntity,
+    getConnection().manager.create(UserEntity, {
       id,
-      name,
-      email,
+      username,
       passwordHash,
+      isAnonymous: false,
     }),
   );

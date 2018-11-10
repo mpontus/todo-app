@@ -4,13 +4,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from 'user/entity/user.entity';
 
 @Entity()
 export class TodoEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn('uuid')
   public id: string;
 
   /**

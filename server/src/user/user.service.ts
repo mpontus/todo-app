@@ -63,11 +63,11 @@ export class UserService {
   }
 
   /**
-   * Find user by username or email
+   * Find user by username
    */
-  public async findByIdentifier(identifier: string): Promise<User | undefined> {
+  public async findByUsername(username: string): Promise<User | undefined> {
     const userEntity = await this.userRepository.findOne({
-      [/@/.test(identifier) ? 'email' : 'username']: identifier,
+      username,
     });
 
     if (userEntity === undefined) {

@@ -14,27 +14,46 @@ afterAll(() => nestApp.close());
 beforeEach(resetDb);
 
 describe('signup', () => {
+  const authSeed = require('../seeds/anonymous_user');
+
+  beforeEach(() => authSeed.run());
+
   describe('when the user does not exist', () => {
     it('should be successful', async () => {
       const response = await supertest(expressApp)
         .post('/auth/signup')
         .send({
-          name: 'Hailee58',
-          email: 'nfisher@yahoo.com',
+          username: 'Hailee58',
           password: '9O_8ywUKpHuHjnZ',
         })
+        .set('Authorization', `Bearer ${authSeed.token}`)
         .expect(201);
 
       expect(response.body).toMatchSnapshot({
         token: expect.any(String),
         user: expect.objectContaining({
-          name: 'Hailee58',
+          id: authSeed.id,
+          username: 'Hailee58',
         }),
       });
     });
   });
 
-  describe('when email is already taken', () => {
+  describe('when the username is missing', () => {
+    it('should be an error', async () => {
+      const response = await supertest(expressApp)
+        .post('/auth/signup')
+        .send({
+          password: '9O_8ywUKpHuHjnZ',
+        })
+        .set('Authorization', `Bearer ${authSeed.token}`)
+        .expect(400);
+
+      expect(response.body).toMatchSnapshot();
+    });
+  });
+
+  describe('when username is already taken', () => {
     const seed = require('../seeds/registered_user');
 
     beforeEach(() => seed.run());
@@ -43,25 +62,39 @@ describe('signup', () => {
       const response = await supertest(expressApp)
         .post('/auth/signup')
         .send({
-          name: 'Hailee58',
-          email: seed.email,
+          name: seed.username,
           password: '9O_8ywUKpHuHjnZ',
         })
+        .set('Authorization', `Bearer ${authSeed.token}`)
         .expect(400);
 
       expect(response.body).toMatchSnapshot();
     });
   });
 
-  describe('when the email is invalid', () => {
+  describe('when the username is too long', () => {
     it('should be an error', async () => {
       const response = await supertest(expressApp)
         .post('/auth/signup')
         .send({
-          name: 'Hailee58',
-          email: 'foo',
+          username: 'x'.repeat(1000),
           password: '9O_8ywUKpHuHjnZ',
         })
+        .set('Authorization', `Bearer ${authSeed.token}`)
+        .expect(400);
+
+      expect(response.body).toMatchSnapshot();
+    });
+  });
+
+  describe('when the password is missing', () => {
+    it('should be an error', async () => {
+      const response = await supertest(expressApp)
+        .post('/auth/signup')
+        .send({
+          username: 'Hailee58',
+        })
+        .set('Authorization', `Bearer ${authSeed.token}`)
         .expect(400);
 
       expect(response.body).toMatchSnapshot();
@@ -73,25 +106,10 @@ describe('signup', () => {
       const response = await supertest(expressApp)
         .post('/auth/signup')
         .send({
-          name: 'Hailee58',
-          email: 'nfisher@yahoo.com',
+          username: 'Hailee58',
           password: 'foo',
         })
-        .expect(400);
-
-      expect(response.body).toMatchSnapshot();
-    });
-  });
-
-  describe('when the name is too long', () => {
-    it('should be an error', async () => {
-      const response = await supertest(expressApp)
-        .post('/auth/signup')
-        .send({
-          name: 'x'.repeat(1000),
-          email: 'nfisher@yahoo.com',
-          password: '9O_8ywUKpHuHjnZ',
-        })
+        .set('Authorization', `Bearer ${authSeed.token}`)
         .expect(400);
 
       expect(response.body).toMatchSnapshot();
