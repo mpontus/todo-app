@@ -1,9 +1,14 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsBoolean, IsDateString } from 'class-validator';
 
-class CreateTodoDto {
+export class CreateTodoDto {
   @IsString()
   @IsNotEmpty()
   @ApiModelProperty()
   title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiModelProperty()
+  date: string;
 }

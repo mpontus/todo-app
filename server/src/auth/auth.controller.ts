@@ -1,23 +1,23 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Post,
   Req,
   UseGuards,
-  ValidationPipe,
-  UsePipes,
   UseInterceptors,
-  ClassSerializerInterceptor,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { AuthGuard } from 'common/guards/auth.guard';
 import { IRequest } from 'common/interface/IRequest';
+import { CreateProfileDto } from 'user/model/create-profile-dto.model';
+import { AnonymousSession } from './model/anonymous-session';
+import { LoginDto } from './model/login-dto.model';
 import { Session } from './model/session.model';
 import { SessionService } from './session.service';
 import { SignupValidation } from './validation/signup.validation';
-import { LoginDto } from './model/login-dto.model';
-import { CreateProfileDto } from 'user/model/create-profile-dto.model';
-import { AnonymousSession } from './model/anonymous-session';
-import { ApiOkResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 /**
  * Auth Controller

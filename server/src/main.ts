@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import cors from 'cors';
-import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AuthModule } from 'auth/auth.module';
+import cors from 'cors';
+import { TodoModule } from 'todo/todo.module';
 import { UserModule } from 'user/user.module';
+import { AppModule } from './app.module';
 
 /**
  * Entyr point to the applicaiton.
@@ -19,10 +20,12 @@ async function bootstrap(): Promise<void> {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  const catDocument = SwaggerModule.createDocument(app, options, {
-    include: [AuthModule, UserModule],
+
+  const document = SwaggerModule.createDocument(app, options, {
+    include: [AuthModule, UserModule, TodoModule],
   });
-  SwaggerModule.setup('swagger', app, catDocument);
+
+  SwaggerModule.setup('swagger', app, document);
 
   await app.listen(parseInt(process.env.PORT || '8080', 10));
 }

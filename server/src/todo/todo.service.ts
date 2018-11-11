@@ -4,21 +4,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from 'common/guards/auth.guard';
-import { Pagination } from 'common/model/pagination.model';
 import { Principal } from 'common/model/principal.model';
 import { Repository } from 'typeorm';
 import { TodoEntity } from './entities/todo.entity';
-import { ITodoListingCriteria } from './interfaces/todo-listing-criteria.interface';
-import { ITodoUpdate } from './interfaces/todo-update.interface';
+import { CreateTodoDto } from './model/create-todo-dto.model';
+import { TodoListingCriteria } from './model/todo-listing-criteria.model';
+import { TodoListing } from './model/todo-listing.model';
 import { Todo } from './model/todo.model';
+import { UpdateTodoDto } from './model/update-todo-dto.model';
 
 export class TodoSerivce {
   constructor(private readonly todoRepository: Repository<TodoEntity>) {}
 
   public async getTodos(
     actor: Principal,
-    spec: ITodoListingCriteria,
-  ): Promise<Pagination<Todo>> {
+    spec: TodoListingCriteria,
+  ): Promise<TodoListing> {
     const [items, total] = await this.todoRepository.findAndCount({
       where: {
         owner: { id: actor.id },
@@ -28,11 +29,14 @@ export class TodoSerivce {
       skip: spec.skip,
     });
 
-    return new Pagination(total, items.map(item => item.getTodo()));
+    return new TodoListing(total, items.map(item => item.getTodo()));
   }
 
   @UseGuards(AuthGuard)
-  public async createTodo(actor: Principal, data: ITodoUpdate) {
+  public async createTodo(
+    actor: Principal,
+    data: CreateTodoDto,
+  ): Promise<Todo> {
     const todoEntity = this.todoRepository.create({
       owner: { id: actor.id },
       title: data.title,
@@ -44,7 +48,11 @@ export class TodoSerivce {
     return todoEntity.getTodo();
   }
 
-  public async updateTodo(actor: Principal, id: string, data: ITodoUpdate) {
+  public async updateTodo(
+    actor: Principal,
+    id: string,
+    data: UpdateTodoDto,
+  ): Promise<Todo> {
     const todoEntity = await this.getTodoEntity(actor, id);
 
     Object.assign(todoEntity, data);
