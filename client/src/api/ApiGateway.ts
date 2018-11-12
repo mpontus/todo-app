@@ -1,84 +1,40 @@
 import { AxiosInstance, AxiosPromise, AxiosRequestConfig } from "axios";
-import { BehaviorSubject } from "rxjs";
-
-const AUTH_KEY = "auth";
 
 /**
- * Authentication state maintained by API Gateway
- */
-export interface AuthState {
-  /**
-   * Access token injected into the requests
-   */
-  token: string | null;
-
-  /**
-   * Details about the user associated with the session
-   */
-  user?: { id: string; name: string };
-}
-
-/**
- * Helper function to retrieve auth state from persistent storage
- */
-const getAuthState = (storage: Storage): AuthState | null => {
-  try {
-    const currentValue = storage.getItem(AUTH_KEY);
-
-    if (currentValue === null) {
-      return null;
-    }
-
-    return JSON.parse(currentValue);
-  } catch {
-    return null;
-  }
-};
-
-/**
- * Helper function to save auth state to persistent storage
- */
-const setAuthState = (storage: Storage, value: AuthState | null): void => {
-  if (value === null) {
-    storage.removeItem(AUTH_KEY);
-  } else {
-    storage.setItem(AUTH_KEY, JSON.stringify(value));
-  }
-};
-
-/**
- * API Gateway
+ * Api Gateway
  *
- * Maintains session authentication details and provides request
- * services to concrete API methods.
+ * Individual API methods use ApiGateway instance to make
+ * authenticated calls to the API server.
  */
 export class ApiGateway {
   /**
-   * Observable authentication state
+   * Security token
    *
-   * API methods may write here to update session details.
+   * Controls the token attached to the authorization header as part
+   * of the bearer authentication scheme.
    */
-  public readonly auth: BehaviorSubject<AuthState | null>;
+  private securityToken: string | null = null;
 
-  constructor(
-    public readonly axios: AxiosInstance,
-    storage: Storage = window.localStorage
-  ) {
-    this.auth = new BehaviorSubject(getAuthState(storage));
-
-    this.auth.subscribe(setAuthState.bind(null, storage));
-
+  /**
+   * Constructor
+   */
+  constructor(private readonly axios: AxiosInstance) {
     this.axios.interceptors.request.use(config => {
-      const authState = this.auth.getValue();
-
-      if (authState === null) {
+      if (this.securityToken === null) {
         return config;
       }
 
-      config.headers.common.Authorization = `Bearer ${authState.token}`;
+      config.headers.common.Authorization = `Bearer ${this.securityToken}`;
 
       return config;
     });
+  }
+
+  /**
+   * Attach given token to API requests
+   */
+  public setAuthToken(token: string | null) {
+    this.securityToken = token;
   }
 
   /**

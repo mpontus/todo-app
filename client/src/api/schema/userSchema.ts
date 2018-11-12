@@ -5,5 +5,5 @@ import * as t from "io-ts";
  */
 export const userSchema = t.type({
   id: t.string,
-  name: t.string
+  username: t.string
 });
