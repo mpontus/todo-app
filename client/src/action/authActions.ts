@@ -1,21 +1,14 @@
-import { createAsyncAction, createStandardAction } from "typesafe-actions";
-import { RequestError } from "../model/RequestError";
-import { User } from "../model/User";
+import { createStandardAction } from "typesafe-actions";
+import { AuthState } from "../model/AuthState";
+import { LoginDto } from "../model/LoginDto";
+import { SignupDto } from "../model/SignupDto";
 
-/**
- * Synchronize auth state between API gateway and redux store.
- *
- * User will be undefined during anonymous authentication.
- */
-export const authStatusChangeAction = createStandardAction(
-  "AUTH_STATUS_CHANGE"
-)<User | undefined>();
+export const authStatusChange = createStandardAction("AUTH_STATUS_CHANGE")<
+  AuthState
+>();
 
-/**
- * Request session destruction on both ends
- */
-export const logoutAction = createAsyncAction(
-  "LOGOUT_REQUEST",
-  "LOGOUT_SUCCESS",
-  "LOGOUT_FAILURE"
-)<void, void, RequestError<void>>();
+export const login = createStandardAction("LOGIN")<LoginDto>();
+
+export const signup = createStandardAction("SIGNUP")<SignupDto>();
+
+export const logout = createStandardAction("LOGOUT")<void>();

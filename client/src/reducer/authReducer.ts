@@ -1,42 +1,29 @@
 import { Reducer } from "redux";
-import { getType } from "typesafe-actions";
 import { Action } from "../action";
-import { authStatusChangeAction } from "../action/authActions";
 import { User } from "../model/User";
+import { getType } from "typesafe-actions";
+import * as actions from "../action/authActions";
 
 interface State {
-  isAuthenticated: boolean;
-  isAnonymous: boolean;
+  token?: string;
   user?: User;
 }
 
-const initialState: State = {
-  isAuthenticated: false,
-  isAnonymous: false,
-  user: undefined
-};
+const initalState: State = {};
 
-/**
- * Describes user session.
- *
- * We are working off the assumption that authStatusChange will be
- * dispatched exactly once between pagee reloads.
- *
- * When the user logs in and out it can make the previously stored
- * information, returned by backend, obsolete and having the state
- * reset with window.reload() greatly simplifies things.
- */
 export const authReducer: Reducer<State, Action> = (
-  state = initialState,
+  state = initalState,
   action
 ) => {
   switch (action.type) {
-    case getType(authStatusChangeAction):
+    case getType(actions.authStatusChange):
       return {
-        isAuthenticated: true,
-        isAnonymous: action.payload === undefined,
-        user: action.payload
+        token: action.payload.token,
+        user: action.payload.user
       };
+
+    case getType(actions.logout):
+      return initalState;
 
     default:
       return state;

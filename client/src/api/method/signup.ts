@@ -4,8 +4,7 @@ import { sessionSchema } from "../schema/sessionSchema";
 import { validateResponse } from "../utils/validateResponse";
 
 interface Params {
-  name: string;
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -16,13 +15,6 @@ type Result = t.TypeOf<typeof sessionSchema>;
  */
 export const signup = async (
   api: ApiGateway,
-  { name, email, password }: Params
-): Promise<Result> => {
-  const session = await api
-    .post("/auth/signup", { name, email, password })
-    .then(validateResponse(sessionSchema));
-
-  api.auth.next(session);
-
-  return session;
-};
+  params: Params
+): Promise<Result> =>
+  api.post("/auth/signup", params).then(validateResponse(sessionSchema));

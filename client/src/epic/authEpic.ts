@@ -1,81 +1,64 @@
-import { combineEpics, Epic } from "redux-observable";
-import { from, of } from "rxjs";
-import {
-  catchError,
-  filter,
-  ignoreElements,
-  map,
-  mapTo,
-  switchMap,
-  tap
-} from "rxjs/operators";
-import { getType, isOfType } from "typesafe-actions";
+import { Epic, combineEpics } from "redux-observable";
+import { map, filter, tap, switchMap, ignoreElements } from "rxjs/operators";
 import { Action } from "../action";
-import { authStatusChangeAction, logoutAction } from "../action/authActions";
-import { loginAnonymously } from "../api/method/loginAnonymously";
-import { logout } from "../api/method/logout";
-import { Dependencies } from "../configureStore";
-import { RequestError } from "../model/RequestError";
 import { State } from "../reducer";
+import { Dependencies } from "../configureStore";
+import { makeGetAuthToken } from "../selector/authSelectors";
+import { loginAnonymously } from "../api/method/loginAnonymously";
+import * as actions from "../action/authActions";
+import { isOfType, getType } from "typesafe-actions";
+import { login } from "../api/method/login";
+import { signup } from "../api/method/signup";
 
-/**
- * Login user anonymously whenever they are unathenticated
- */
+export const setTokenEpic: Epic<Action, Action, State, Dependencies> = (
+  action$,
+  state$,
+  { api }
+) =>
+  state$.pipe(
+    map(makeGetAuthToken()),
+    filter(Boolean),
+    tap(api.setAuthToken.bind(api)),
+    ignoreElements()
+  );
+
 export const anonymousLoginEpic: Epic<Action, Action, State, Dependencies> = (
   action$,
   state$,
   { api }
-) => {
-  const unauthenticated$ = api.auth.pipe(
-    filter(<T>(authStatus: T | null): authStatus is null => authStatus === null)
+) =>
+  state$.pipe(
+    map(makeGetAuthToken()),
+    filter(it => it === undefined),
+    switchMap(() => loginAnonymously(api)),
+    map(actions.authStatusChange)
   );
 
-  return unauthenticated$.pipe(
-    tap(() => loginAnonymously(api)),
-    ignoreElements()
-  );
-};
-
-/**
- * Dispatch auth status updates to the store
- */
-const authStatusUpdateEpic: Epic<Action, Action, State, Dependencies> = (
-  action$,
-  state$,
-  { api }
-) => {
-  const authenticated$ = api.auth.pipe(
-    filter(<T>(authStatus: T | null): authStatus is T => authStatus !== null)
-  );
-
-  return authenticated$.pipe(
-    map(authStatus => authStatus.user),
-    map(authStatusChangeAction)
-  );
-};
-
-/**
- * Logout the user on both ends and then reload the window.
- */
-export const logoutEpic: Epic<Action, Action, State, Dependencies> = (
+export const loginEpic: Epic<Action, Action, State, Dependencies> = (
   action$,
   state$,
   { api }
 ) =>
   action$.pipe(
-    filter(isOfType(getType(logoutAction.request))),
-    switchMap(() =>
-      from(logout(api)).pipe(
-        mapTo(logoutAction.success()),
-        catchError(error =>
-          of(logoutAction.failure(RequestError.fromApiError(error)))
-        )
-      )
-    )
+    filter(isOfType(getType(actions.login))),
+    switchMap(action => login(api, action.payload)),
+    map(actions.authStatusChange)
+  );
+
+export const signupEpic: Epic<Action, Action, State, Dependencies> = (
+  action$,
+  state$,
+  { api }
+) =>
+  action$.pipe(
+    filter(isOfType(getType(actions.signup))),
+    switchMap(action => signup(api, action.payload)),
+    map(actions.authStatusChange)
   );
 
 export const authEpic = combineEpics(
+  setTokenEpic,
   anonymousLoginEpic,
-  authStatusUpdateEpic,
-  logoutEpic
+  loginEpic,
+  signupEpic
 );
