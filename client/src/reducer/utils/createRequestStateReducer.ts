@@ -1,4 +1,5 @@
-import { Action, Reducer } from "redux";
+import { Reducer } from "redux";
+import { Action } from "../../action";
 
 interface RequestState<ErrorType> {
   loading: boolean;
@@ -11,18 +12,42 @@ const initialState = {
   success: false
 };
 
-/**
- * Reusable reducer constructor for managing request state
- */
 export const createRequestStateReducer = <
-  ActionType extends Action<any>,
+  BaseAction extends Action,
+  RequestAction extends BaseAction,
+  SuccessAction extends BaseAction,
+  FailureAction extends BaseAction,
   ErrorType extends Error
 >(
-  reducer: (
-    state: RequestState<ErrorType>,
-    action: ActionType
-  ) => RequestState<ErrorType>
-): Reducer<RequestState<ErrorType>, ActionType> => (
+  requestActionPredicate: (value: BaseAction) => value is RequestAction,
+  successActionPredicate: (value: BaseAction) => value is SuccessAction,
+  failureActionPredicate: (value: BaseAction) => value is FailureAction,
+  errorSelector: (value: FailureAction) => ErrorType
+): Reducer<RequestState<ErrorType>, BaseAction> => (
   state = initialState,
   action
-) => reducer(state, action);
+) => {
+  if (requestActionPredicate(action)) {
+    return {
+      loading: true,
+      success: false
+    };
+  }
+
+  if (successActionPredicate(action)) {
+    return {
+      loading: false,
+      success: true
+    };
+  }
+
+  if (failureActionPredicate(action)) {
+    return {
+      loading: false,
+      success: false,
+      error: errorSelector(action)
+    };
+  }
+
+  return state;
+};

@@ -16,7 +16,9 @@ export const authReducer: Reducer<State, Action> = (
   action
 ) => {
   switch (action.type) {
-    case getType(actions.authStatusChange):
+    case getType(actions.anonymousLoginSuccess):
+    case getType(actions.login.success):
+    case getType(actions.signup.success):
       return {
         token: action.payload.token,
         user: action.payload.user
