@@ -5,6 +5,7 @@ import { Action } from "./action";
 import { ApiGateway } from "./api/ApiGateway";
 import { rootEpic } from "./epic";
 import { rootReducer, State } from "./reducer";
+import { persistStore } from "redux-persist";
 
 /**
  * Redux middleware dependencies
@@ -41,8 +42,9 @@ export const configureStore = (
     preloadedState,
     composeEnhancers(middlewareEnhancer)
   );
+  const persistor = persistStore(store, {}, () => {
+    epicMiddleware.run(rootEpic);
+  });
 
-  epicMiddleware.run(rootEpic);
-
-  return store;
+  return { store, persistor };
 };

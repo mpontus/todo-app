@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Redirect, Route, Switch } from "react-router";
+import { Link } from "react-router-dom";
 import { Container } from "../component/Container";
 import { Footer } from "../component/Footer";
 import { SingleColumnLayout } from "../component/SingleColumnLayout";
@@ -30,8 +31,10 @@ export const Root = () => (
           </div>
         )}
       </CurrentUserProvider>
-      <LoginFormContainer />
-      <SignupFormContainer />
+      <Link to="/login">Login</Link>
+      <Link to="/signup">Sign Up</Link>
+      <Route path="/login" component={LoginFormContainer} />
+      <Route path="/signup" component={SignupFormContainer} />
     </div>
   </AuthGate>
 );
