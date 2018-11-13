@@ -15,6 +15,7 @@ import { State } from "../reducer";
 import { signup } from "../action/authActions";
 import { connect, Selector } from "react-redux";
 import { Button } from "../component/Button";
+import { Message } from "../component/Message";
 
 interface ConnectedProps {
   submitting: boolean;
@@ -62,6 +63,7 @@ export const SignupFormContainer = enhance(
       initialValues={initialValues}
       onSubmit={onSubmit}
     >
+      <Message error={error} />
       <Field
         component={Input}
         name="username"

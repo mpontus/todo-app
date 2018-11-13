@@ -48,7 +48,7 @@ export class SessionService {
         credentials.password,
       ))
     ) {
-      throw new BadRequestException();
+      throw new BadRequestException('Username or password is invalid');
     }
 
     const token = await this.createToken(user);
